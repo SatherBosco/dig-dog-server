@@ -1,0 +1,27 @@
+{
+    "timeMult": 3600000,
+    "reward": [
+        100,
+        130,
+        160,
+        200,
+        300,
+        500
+    ],
+    "dogActionTime": [
+        1.5,
+        3,
+        12,
+        6,
+        24
+    ],
+    "dogBoneIncrPow": [
+        2,
+        4,
+        16,
+        8,
+        32
+    ],
+    "dogPrice": 400,
+    "housePrice": 4000
+}
