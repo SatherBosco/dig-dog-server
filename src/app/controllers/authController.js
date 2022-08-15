@@ -24,10 +24,17 @@ function generateRecoverToken(params = {}) {
     });
 }
 
+function hasWhiteSpace(s) {
+    return s.indexOf(" ") >= 0;
+}
+
 router.post('/register', async (req, res) => {
     const { username, email, wallet } = req.body;
 
     try {
+        if (hasWhiteSpace(username))
+            return res.status(400).send({ msg: 'Username não pode conter espaços em branco.' });
+
         if (await User.findOne({ username }))
             return res.status(400).send({ msg: 'Username indisponível.' });
 
@@ -75,6 +82,9 @@ router.post('/register-continuation', async (req, res) => {
         if (address.toLowerCase() !== wallet.toLowerCase() || wallet.toLowerCase() !== decodedWallet.toLowerCase())
             return res.status(400).send({ msg: 'Identidade não confirmada.' });
 
+        if (hasWhiteSpace(username))
+            return res.status(400).send({ msg: 'Username não pode conter espaços em branco.' });
+
         if (await User.findOne({ username }))
             return res.status(400).send({ msg: 'Username indisponível.' });
 
@@ -92,16 +102,15 @@ router.post('/register-continuation', async (req, res) => {
             'userRef': -1,
             'id': 0
         }
-
-        if (ref && ref !== "" && ref < 0) {
+        if (ref && ref !== "" && ref > 1233) {
             if (await User.findOne({ id: ref })) {
                 obj.userRef = ref;
             }
         }
 
-        const { lastId } = await User.findOne({}).sort({ 'id': -1 }).limit(1);
+        const lastId = await User.findOne({}).sort({ 'id': -1 }).limit(1);
         if (lastId)
-            obj.id = lastId + 1;
+            obj.id = lastId.id + 1;
 
         const user = await User.create(obj);
 
@@ -110,7 +119,7 @@ router.post('/register-continuation', async (req, res) => {
         return res.send({
             msg: 'OK',
             user,
-            token: generateToken({ id: user.id }),
+            token: generateToken({ id: user._id }),
         });
     } catch (err) {
         return res.status(400).send({ msg: 'Falha na criação da conta.' });
@@ -133,7 +142,7 @@ router.post('/authenticate', async (req, res) => {
     res.send({
         msg: 'OK',
         user,
-        token: generateToken({ id: user.id }),
+        token: generateToken({ id: user._id }),
     });
 });
 

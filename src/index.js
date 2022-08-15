@@ -76,7 +76,7 @@ require('./app/controllers/index')(app);
 //     console.log(`Server started at ${PORT}`);
 // })
 
-app.listen(3000);
+app.listen(5000);
 
 const listenToEvents = () => {
     const NODE_URL = 'https://bsc-dataseed.binance.org/';

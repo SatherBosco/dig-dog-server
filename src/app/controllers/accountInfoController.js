@@ -14,7 +14,6 @@ router.use(authMiddleware);
 router.get('/', async (req, res) => {
     try {
         var account = await Account.findOne({ user: req.userId });
-
         if (!account) {
             var obj = {
                 'user': req.userId,
