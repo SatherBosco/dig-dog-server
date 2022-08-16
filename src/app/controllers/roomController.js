@@ -91,7 +91,7 @@ router.post('/', async (req, res) => {
 
 router.get('/waitlist', async (req, res) => {
     try {
-        const nextroom = await ListWaitRoom.findOne({}).sort({ 'roomavaliabletime': 1 }).limit(1);
+        const nextroom = await ListWaitRoom.findOne({}).sort({ 'roomAvaliableTime': 1 }).limit(1);
 
         return res.send({ msg: 'OK', nextroom });
     } catch (err) {
