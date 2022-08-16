@@ -243,11 +243,11 @@ router.put('/fome/:dogId', async (req, res) => {
         if (fomeAtual >= 20)
             return res.send({ msg: 'Dog sem fome.' });
 
-        const { comida } = await Account.findOne({ user: req.userId });
+        const { food } = await Account.findOne({ user: req.userId });
 
         const alimentarEm = 4 - Math.floor(fomeAtual / 5);
 
-        if (comida < alimentarEm)
+        if (food < alimentarEm)
             return res.status(400).send({ msg: 'Sem comida.' });
 
         const newFome = new Date(dog.hungry.getTime() + alimentarEm * 5 * gameSettings.timeMult);
