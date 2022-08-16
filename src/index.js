@@ -9,6 +9,7 @@ const SmartContractDeposit = require('./app/contracts/DDCDeposit.json');
 const SmartContractWithdraw = require('./app/contracts/DDCWithdraw.json');
 const SmartContractBuyDog = require('./app/contracts/BuyDog.json');
 const SmartContractBuyHouse = require('./app/contracts/BuyHouse.json');
+const SmartContractWithdrawVesting = require('./app/contracts/WithdrawVesting.json');
 const ethers = require('ethers');
 
 const gameSettings = require('./config/gameSettings.json');
@@ -22,6 +23,7 @@ const User = require('./app/models/User');
 const BuyDog = require('./app/models/BuyDog');
 const BuyHouse = require('./app/models/BuyHouse');
 const Stake = require('./app/models/Stake');
+const VestingToBone = require('./app/models/VestingToBone');
 
 // Add Access Control Allow Origin headers
 app.use(cors());
@@ -103,6 +105,12 @@ const listenToEvents = () => {
     const SmartContractBuyHouseObj = new ethers.Contract(
         '0xCd39122dD289D4DD95b317075F9921A9624BD063',
         SmartContractBuyHouse,
+        provider
+    );
+
+    const SmartContractWithdrawVestingObj = new ethers.Contract(
+        '0x656A376fCa48D734BcBF78BD177f20B364395Fff',
+        SmartContractWithdrawVesting,
         provider
     );
 
@@ -207,6 +215,29 @@ const listenToEvents = () => {
                     account.bone = account.bone - (amount * gameSettings.housePrice);
                     await account.save();
                 }
+            }
+        }
+    });
+
+    SmartContractWithdrawVestingObj.on('WithdrawToBoneDone', async (payer, amount, date) => {
+        console.log(`
+        From ${payer}
+        Amount ${amount}
+        Date ${date}
+        `);
+
+        const address = payer.toLowerCase();
+        const user = await User.findOne({ wallet: address });
+        if (user) {
+            const account = await Account.findOne({ user: user._id });
+            if (account) {
+                account.bone = account.bone + (parseInt(ethers.utils.formatEther(amount)));
+                await account.save();
+
+                var objVesting = {
+                    'user': user._id
+                }
+                await VestingToBone.create(objVesting);
             }
         }
     });
