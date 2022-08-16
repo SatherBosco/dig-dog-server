@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
-router.get('/', async(req, res) => {
+router.get('/', async (req, res) => {
     try {
         const rooms = await Room.find({ user: req.userId });
         var roomAvaliable;
@@ -36,7 +36,7 @@ router.get('/', async(req, res) => {
     }
 });
 
-router.post('/', async(req, res) => {
+router.post('/', async (req, res) => {
     const { _id, roomavaliabletime, hours } = req.body;
 
     try {
@@ -89,7 +89,7 @@ router.post('/', async(req, res) => {
     }
 });
 
-router.get('/waitlist', async(req, res) => {
+router.get('/waitlist', async (req, res) => {
     try {
         const nextroom = await ListWaitRoom.findOne({}).sort({ 'roomavaliabletime': 1 }).limit(1);
 

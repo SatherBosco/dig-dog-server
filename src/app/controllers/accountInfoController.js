@@ -29,7 +29,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.put('/buy-food', async (req, res) => {
+router.put('/comida', async (req, res) => {
     try {
         const { bone } = await Account.findOne({ user: req.userId });
 
