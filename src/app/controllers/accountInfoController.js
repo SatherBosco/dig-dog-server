@@ -33,7 +33,7 @@ router.put('/comida', async (req, res) => {
     try {
         const { bone } = await Account.findOne({ user: req.userId });
 
-        const comidaPrice = 100;
+        const comidaPrice = 10;
         if (bone < comidaPrice) {
             return res.send({ msg: 'Sem Bone para comprar comida.' });
         }

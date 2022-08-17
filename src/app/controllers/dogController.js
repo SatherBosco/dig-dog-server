@@ -390,7 +390,7 @@ router.post('/action/:dogId', async (req, res) => {
                         return res.send({ msg: 'Casa já em uso.' });
                 }
 
-                const usedBed = await Bed.findOneAndUpdate({ user: req.userId, _id: bedId }, { '$set': { 'usoBbedTime': dogTypeTime } }, { new: true });
+                const usedBed = await Bed.findOneAndUpdate({ user: req.userId, _id: bedId }, { '$set': { 'useBedTime': dogTypeTime } }, { new: true });
                 await usedBed.save();
 
                 dog.status = 'dormindo';
