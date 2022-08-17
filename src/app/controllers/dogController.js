@@ -375,7 +375,7 @@ router.post('/action/:dogId', async (req, res) => {
                     if (usedRoom.useRoomTime > nowDate)
                         return res.send({ msg: 'Quarto já em uso.' });
 
-                    if (new Date(usedRoom.roomStartTime.getTime() + (usedRoom.timeMult * 24 * gameSettings.timeMult)) < dogTypeTime)
+                    if (new Date(usedRoom.roomStartTime.getTime() + Math.trunc((usedRoom.timeMult * 24.5 * gameSettings.timeMult))) < dogTypeTime)
                         return res.send({ msg: 'Quarto com tempo disponível menor do que o necessário.' });
                 } else {
                     if (houseId == "")

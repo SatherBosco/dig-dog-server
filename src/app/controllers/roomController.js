@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
         if (rooms.length != 0) {
             for (let room of rooms) {
                 const nowDate = new Date();
-                const expirationTime = room.roomStartTime.getTime() + (room.timeMult * 24 * gameSettings.timeMult);
+                const expirationTime = room.roomStartTime.getTime() + Math.trunc((room.timeMult * 24.5 * gameSettings.timeMult));
                 if (expirationTime < nowDate) {
                     await Room.findByIdAndRemove({ _id: room._id });
                 } else {
@@ -45,7 +45,7 @@ router.post('/', async (req, res) => {
         if (rooms.length != 0) {
             for (let room of rooms) {
                 const nowDate = new Date();
-                const expirationTime = room.roomStartTime.getTime() + (room.timeMult * 24 * gameSettings.timeMult);
+                const expirationTime = room.roomStartTime.getTime() + Math.trunc((room.timeMult * 24.5 * gameSettings.timeMult));
                 if (expirationTime < nowDate) {
                     await Room.findByIdAndRemove({ _id: room._id });
                 } else {
@@ -80,7 +80,7 @@ router.post('/', async (req, res) => {
 
         const account = await Account.findOneAndUpdate({ user: req.userId }, { '$inc': { 'bone': -roomPrice } }, { new: true });
 
-        const newRoomavAliableTime = new Date(startTimeRight.getTime() + (Math.trunc(hours) * 24 * gameSettings.timeMult));
+        const newRoomavAliableTime = new Date(startTimeRight.getTime() + Math.trunc((Math.trunc(hours) * 24.5 * gameSettings.timeMult)));
         const changeListWaitRoom = await ListWaitRoom.findOneAndUpdate({ _id }, { '$set': { 'roomAvaliableTime': newRoomavAliableTime } }, { new: true });
         await changeListWaitRoom.save();
         return res.send({ msg: 'OK', roomAvaliable, account });
