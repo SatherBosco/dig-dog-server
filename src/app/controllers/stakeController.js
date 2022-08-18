@@ -79,13 +79,6 @@ async function mintStake(userId, amount, stakeId) {
 
         buyDog = await BuyDog.create(buyDogObj);
 
-        console.log(_recipient,
-            _amount,
-            _transactionId,
-            _date,
-            _contract, sigMessage, buyDogTransaction
-        );
-
         return buyDog;
     } catch (err) {
         return {};

@@ -500,13 +500,6 @@ router.post('/buy', async (req, res) => {
 
         buyDog = await BuyDog.create(buyDogObj);
 
-        console.log(_recipient,
-            _amount,
-            _transactionId,
-            _date,
-            _contract, sigMessage, buyDogTransaction
-        );
-
         return res.send({ msg: 'OK', buyDog });
     } catch (err) {
         return res.status(400).send({ msg: 'Erro do servidor.' });
