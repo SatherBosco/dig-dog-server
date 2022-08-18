@@ -24,7 +24,6 @@ const BuyDog = require('./app/models/BuyDog');
 const BuyHouse = require('./app/models/BuyHouse');
 const Stake = require('./app/models/Stake');
 const VestingToBone = require('./app/models/VestingToBone');
-const Dog = require('./app/models/Dog');
 
 // Add Access Control Allow Origin headers
 app.use(cors());
@@ -41,28 +40,6 @@ app.use(express.urlencoded({ extended: false }));
 
 app.get('/', (req, res) => {
     return res.send({ msg: 'OK' });
-});
-
-app.post('/penalidade', async (req, res) => {
-    try {
-        const novaFomeSede = new Date(1660734000000);
-        const dogs = await Dog.find({});
-        const nowDate = new Date();
-
-        for (let index = 0; index < dogs.length; index++) {
-            if (dogs[index].hungry < nowDate || dogs[index].thirst < nowDate) {
-                dogs[index].penalty = 0;
-                dogs[index].penaltyDate = new Date(0);
-                dogs[index].hungry = novaFomeSede;
-                dogs[index].thirst = novaFomeSede;
-                await dogs[index].save();
-            }
-        }
-
-        return res.send({ msg: 'OK' });
-    } catch (err) {
-        return res.status(400).send({ msg: 'Error create room' });
-    }
 });
 
 require('./app/controllers/index')(app);
@@ -266,4 +243,4 @@ const listenToEvents = () => {
     });
 };
 
-// listenToEvents();
+listenToEvents();
