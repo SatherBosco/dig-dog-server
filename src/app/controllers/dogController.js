@@ -134,7 +134,7 @@ async function getPenalidade(fome, sede) {
         const oneDayPlusThreeBars = 140400; // 24 HORAS + 15 HORAS (3 BARRAS)
 
         const restoDaPenalidade = diff % oneDayPlusThreeBars;
-        const novoDate = nowDate + restoDaPenalidade - oneDay;
+        const novoDate = (fomeDate < sedeDate ? fomeDate : sedeDate) + (diff - restoDaPenalidade);
 
         fomeSedeObj.mudarFomeSede = true;
         fomeSedeObj.novoFomeSede = novoDate;
