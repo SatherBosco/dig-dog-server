@@ -71,50 +71,79 @@ async function transferFee(userId, boneFee) {
     }
 }
 
-async function getPenalidade(fomeSede, penalidade, penalidadeDate, cla) {
+// async function getPenalidade(fomeSede, penalidade, penalidadeDate, cla) {
+//     const nowDate = Math.trunc((new Date()).getTime() / 1000);
+//     const fomeSedeDate = Math.trunc(fomeSede.getTime() / 1000);
+//     const pnDate = Math.trunc(penalidadeDate.getTime() / 1000);
+
+//     let dif = nowDate - fomeSedeDate;
+
+//     const claTime = gameSettings.dogActionTime[cla];
+//     const threePoints = (3 * 5 * gameSettings.timeMult) / 1000;
+//     let obj = {};
+//     if (pnDate + threePoints > nowDate) {
+//         obj = {
+//             podeAlimentar: true,
+//             newFomeSede: pnDate + threePoints,
+//             newPenalidadeDate: pnDate,
+//             newPenalidade: penalidade
+//         };
+
+//         return obj;
+//     }
+
+//     let penalidadeMult = 0;
+
+//     let stop = true;
+//     while (stop) {
+//         penalidade += 1;
+//         penalidadeMult = ((penalidade) * 10 * claTime * gameSettings.timeMult) / 1000;
+//         let pn = dif / (penalidadeMult + threePoints);
+//         if (pn < 1) {
+//             stop = false;
+//         } else {
+//             dif -= penalidadeMult + threePoints;
+//         }
+//     }
+
+//     const pode = dif > penalidadeMult;
+//     obj = {
+//         podeAlimentar: pode,
+//         newFomeSede: pode ? (nowDate + threePoints + penalidadeMult - dif) : (nowDate - dif),
+//         newPenalidadeDate: nowDate - dif + penalidadeMult,
+//         newPenalidade: penalidade
+//     };
+
+//     return obj;
+// }
+
+async function getPenalidade(fome, sede) {
     const nowDate = Math.trunc((new Date()).getTime() / 1000);
-    const fomeSedeDate = Math.trunc(fomeSede.getTime() / 1000);
-    const pnDate = Math.trunc(penalidadeDate.getTime() / 1000);
+    const fomeDate = Math.trunc(fome.getTime() / 1000);
+    const sedeDate = Math.trunc(sede.getTime() / 1000);
 
-    let dif = nowDate - fomeSedeDate;
-
-    const claTime = gameSettings.dogActionTime[cla];
-    const threePoints = (3 * 5 * gameSettings.timeMult) / 1000;
-    let obj = {};
-    if (pnDate + threePoints > nowDate) {
-        obj = {
-            podeAlimentar: true,
-            newFomeSede: pnDate + threePoints,
-            newPenalidadeDate: pnDate,
-            newPenalidade: penalidade
-        };
-
-        return obj;
+    var fomeSedeObj = {
+        'disponivel': true,
+        'mudarFomeSede': false,
+        'novoFomeSede': 0
     }
 
-    let penalidadeMult = 0;
+    if (fomeDate < nowDate || sedeDate < nowDate) {
+        const diff = nowDate - (fomeDate < sedeDate ? fomeDate : sedeDate);
+        const oneDay = 86400; // 24 HORAS
+        const oneDayPlusThreeBars = 140400; // 24 HORAS + 15 HORAS (3 BARRAS)
 
-    let stop = true;
-    while (stop) {
-        penalidade += 1;
-        penalidadeMult = ((penalidade) * 10 * claTime * gameSettings.timeMult) / 1000;
-        let pn = dif / (penalidadeMult + threePoints);
-        if (pn < 1) {
-            stop = false;
-        } else {
-            dif -= penalidadeMult + threePoints;
-        }
+        const restoDaPenalidade = diff % oneDayPlusThreeBars;
+        const novoDate = nowDate + restoDaPenalidade - oneDay;
+
+        fomeSedeObj.mudarFomeSede = true;
+        fomeSedeObj.novoFomeSede = novoDate;
+
+        if (restoDaPenalidade < oneDay)
+            fomeSedeObj.disponivel = false;
     }
 
-    const pode = dif > penalidadeMult;
-    obj = {
-        podeAlimentar: pode,
-        newFomeSede: pode ? (nowDate + threePoints + penalidadeMult - dif) : (nowDate - dif),
-        newPenalidadeDate: nowDate - dif + penalidadeMult,
-        newPenalidade: penalidade
-    };
-
-    return obj;
+    return fomeSedeObj;
 }
 
 router.get('/', async (req, res) => {
@@ -146,7 +175,6 @@ router.get('/', async (req, res) => {
         });
 
         var dogsFromDB = [];
-        const nowDate = new Date()
 
         if (dogsFromBSC.length !== 0) {
             for (let dog of dogsFromBSC) {
@@ -162,16 +190,11 @@ router.get('/', async (req, res) => {
 
                         dogsFromDB.push(changeDog);
                     } else {
-                        if (dogInDB.hungry < nowDate || dogInDB.thirst < nowDate) {
-                            if (dogInDB.penalidadedate < nowDate) {
-                                const calc = await getPenalidade(dogInDB.hungry < dogInDB.thirst ? dogInDB.hungry : dogInDB.thirst, dogInDB.penalty, dogInDB.penaltyDate, dogInDB.clan);
-
-                                dogInDB.penalty = calc.newPenalidade;
-                                dogInDB.hungry = new Date(calc.newFomeSede * 1000);
-                                dogInDB.thirst = new Date(calc.newFomeSede * 1000);
-                                dogInDB.penaltyDate = new Date(calc.newPenalidadeDate * 1000);
-                                await dogInDB.save();
-                            }
+                        const penalidadeVerify = await getPenalidade(dogInDB.hungry, dogInDB.thirst);
+                        if (penalidadeVerify.mudarFomeSede) {
+                            dogInDB.hungry = new Date(penalidadeVerify.novoFomeSede * 1000);
+                            dogInDB.thirst = new Date(penalidadeVerify.novoFomeSede * 1000);
+                            await dogInDB.save();
                         }
 
                         dogsFromDB.push(dogInDB);
@@ -221,21 +244,14 @@ router.put('/fome/:dogId', async (req, res) => {
         const dog = await Dog.findOne({ user: req.userId, dogId: req.params.dogId });
         const nowDate = new Date();
 
-        if (dog.hungry < nowDate || dog.thirst < nowDate) {
-            if (dog.penalidadedate < nowDate) {
-                const calc = await getPenalidade(dog.hungry < dog.thirst ? dog.hungry : dog.thirst, dog.penalty, dog.penaltyDate, dog.clan);
+        const penalidadeVerify = await getPenalidade(dog.hungry, dog.thirst);
+        if (!penalidadeVerify.disponivel)
+            return res.send({ msg: 'O dog sofreu uma penalidade por não receber cuidados.', dog });
 
-                dog.penalty = calc.newPenalidade;
-                dog.hungry = new Date(calc.newFomeSede * 1000);
-                dog.thirst = new Date(calc.newFomeSede * 1000);
-                dog.penaltyDate = new Date(calc.newPenalidadeDate * 1000);
-                await dog.save();
-
-                if (!calc.podeAlimentar)
-                    return res.send({ msg: 'O dog sofreu uma penalidade por não receber cuidados.', dog });
-            } else {
-                return res.send({ msg: 'O dog sofreu uma penalidade por não receber cuidados.', dog });
-            }
+        if (penalidadeVerify.mudarFomeSede) {
+            dog.hungry = new Date(penalidadeVerify.novoFomeSede * 1000);
+            dog.thirst = new Date(penalidadeVerify.novoFomeSede * 1000);
+            await dog.save();
         }
 
         const fomeAtual = Math.floor(Math.abs(dog.hungry.getTime() - nowDate.getTime()) / gameSettings.timeMult);
@@ -269,21 +285,14 @@ router.put('/sede/:dogId', async (req, res) => {
         const dog = await Dog.findOne({ user: req.userId, dogId: req.params.dogId });
         const nowDate = new Date();
 
-        if (dog.hungry < nowDate || dog.thirst < nowDate) {
-            if (dog.penalidadedate < nowDate) {
-                const calc = await getPenalidade(dog.hungry < dog.thirst ? dog.hungry : dog.thirst, dog.penalidade, dog.penalidadedate, dog.cla);
+        const penalidadeVerify = await getPenalidade(dog.hungry, dog.thirst);
+        if (!penalidadeVerify.disponivel)
+            return res.send({ msg: 'O dog sofreu uma penalidade por não receber cuidados.', dog });
 
-                dog.penalty = calc.newPenalidade;
-                dog.hungry = new Date(calc.newFomeSede * 1000);
-                dog.thirst = new Date(calc.newFomeSede * 1000);
-                dog.penaltyDate = new Date(calc.newPenalidadeDate * 1000);
-                await dog.save();
-
-                if (!calc.podeAlimentar)
-                    return res.send({ msg: 'O dog sofreu uma penalidade por não receber cuidados.', dog });
-            } else {
-                return res.send({ msg: 'O dog sofreu uma penalidade por não receber cuidados.', dog });
-            }
+        if (penalidadeVerify.mudarFomeSede) {
+            dog.hungry = new Date(penalidadeVerify.novoFomeSede * 1000);
+            dog.thirst = new Date(penalidadeVerify.novoFomeSede * 1000);
+            await dog.save();
         }
 
         const sedeAtual = Math.floor(Math.abs(dog.thirst.getTime() - nowDate.getTime()) / gameSettings.timeMult);
@@ -309,16 +318,14 @@ router.post('/action/:dogId', async (req, res) => {
         const dog = await Dog.findOne({ user: req.userId, dogId: req.params.dogId });
         const nowDate = new Date();
 
-        if (dog.hungry < nowDate || dog.thirst < nowDate) {
-            const calc = await getPenalidade(dog.hungry < dog.thirst ? dog.hungry : dog.thirst, dog.penalty, dog.clan);
+        const penalidadeVerify = await getPenalidade(dog.hungry, dog.thirst);
+        if (!penalidadeVerify.disponivel)
+            return res.send({ msg: 'O dog sofreu uma penalidade por não receber cuidados.', dog });
 
-            dog.penalidade = calc.newPenalidade;
-            dog.hungry = new Date(calc.newFomeSede * 1000);
-            dog.thirst = new Date(calc.newFomeSede * 1000);
-            await dog.save();
-
-            if (!calc.podeAlimentar)
-                return res.send({ msg: 'O dog sofreu uma penalidade por não receber cuidados.', dog });
+        if (penalidadeVerify.mudarFomeSede) {
+            dog.hungry = new Date(penalidadeVerify.novoFomeSede * 1000);
+            dog.thirst = new Date(penalidadeVerify.novoFomeSede * 1000);
+            await dog.save()
         }
 
         if (dog.statusTime > nowDate)
