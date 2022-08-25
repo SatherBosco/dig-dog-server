@@ -335,7 +335,7 @@ router.post('/action/:dogId', async (req, res) => {
             return res.send({ msg: 'Dog ocupado.' });
 
         const boneCalc = dog.status == 'trocou' ? 0 : Math.ceil(gameSettings.reward[dog.rarity] / (gameSettings.dogBoneIncrPow[dog.clan]));
-        const boneIncr = boneCalc * 0.95;
+        const boneIncr = boneCalc * 0.9;
         const boneFee = boneCalc - boneIncr;
 
         const dogTypeTime = new Date(nowDate.getTime() + (gameSettings.dogActionTime[dog.clan] * gameSettings.timeMult));
