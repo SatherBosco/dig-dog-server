@@ -5,6 +5,8 @@ const authMiddleware = require("../middlewares/auth");
 
 const gameSettings = require("../../config/gameSettings.json");
 
+const SmartContractBuyDog = require('../contracts/BuyDog.json');
+
 const Dog = require("../models/Dog");
 const BuyDog = require("../models/BuyDog");
 const Stake = require("../models/Stake");
@@ -100,76 +102,87 @@ router.post("/", async (req, res) => {
         const dogDb9 = await Dog.findOne({ dogId: dog9, user: req.userId });
         const dogDb10 = await Dog.findOne({ dogId: dog10, user: req.userId });
 
-        if (
+        const nowDate = new Date();
+
+        if (dogDb1 &&
             dogDb1.status !== "stake" &&
-            dogDb1.hungry > new Date() &&
-            dogDb1.thirst > new Date() &&
+            dogDb1.hungry > nowDate &&
+            dogDb1.thirst > nowDate &&
+            dogDb2 &&
             dogDb2.status !== "stake" &&
-            dogDb2.hungry > new Date() &&
-            dogDb2.thirst > new Date() &&
+            dogDb2.hungry > nowDate &&
+            dogDb2.thirst > nowDate &&
+            dogDb3 &&
             dogDb3.status !== "stake" &&
-            dogDb3.hungry > new Date() &&
-            dogDb3.thirst > new Date() &&
+            dogDb3.hungry > nowDate &&
+            dogDb3.thirst > nowDate &&
+            dogDb4 &&
             dogDb4.status !== "stake" &&
-            dogDb4.hungry > new Date() &&
-            dogDb4.thirst > new Date() &&
+            dogDb4.hungry > nowDate &&
+            dogDb4.thirst > nowDate &&
+            dogDb5 &&
             dogDb5.status !== "stake" &&
-            dogDb5.hungry > new Date() &&
-            dogDb5.thirst > new Date() &&
+            dogDb5.hungry > nowDate &&
+            dogDb5.thirst > nowDate &&
+            dogDb6 &&
             dogDb6.status !== "stake" &&
-            dogDb6.hungry > new Date() &&
-            dogDb6.thirst > new Date() &&
+            dogDb6.hungry > nowDate &&
+            dogDb6.thirst > nowDate &&
+            dogDb7 &&
             dogDb7.status !== "stake" &&
-            dogDb7.hungry > new Date() &&
-            dogDb7.thirst > new Date() &&
+            dogDb7.hungry > nowDate &&
+            dogDb7.thirst > nowDate &&
+            dogDb8 &&
             dogDb8.status !== "stake" &&
-            dogDb8.hungry > new Date() &&
-            dogDb8.thirst > new Date() &&
+            dogDb8.hungry > nowDate &&
+            dogDb8.thirst > nowDate &&
+            dogDb9 &&
             dogDb9.status !== "stake" &&
-            dogDb9.hungry > new Date() &&
-            dogDb9.thirst > new Date() &&
+            dogDb9.hungry > nowDate &&
+            dogDb9.thirst > nowDate &&
+            dogDb10 &&
             dogDb10.status !== "stake" &&
-            dogDb10.hungry > new Date() &&
-            dogDb10.thirst > new Date()
+            dogDb10.hungry > nowDate &&
+            dogDb10.thirst > nowDate
         ) {
             dogDb1.status = "stake";
-            dogDb1.statusTime = new Date();
+            dogDb1.statusTime = nowDate;
             await dogDb1.save();
 
             dogDb2.status = "stake";
-            dogDb2.statusTime = new Date();
+            dogDb2.statusTime = nowDate;
             await dogDb2.save();
 
             dogDb3.status = "stake";
-            dogDb3.statusTime = new Date();
+            dogDb3.statusTime = nowDate;
             await dogDb3.save();
 
             dogDb4.status = "stake";
-            dogDb4.statusTime = new Date();
+            dogDb4.statusTime = nowDate;
             await dogDb4.save();
 
             dogDb5.status = "stake";
-            dogDb5.statusTime = new Date();
+            dogDb5.statusTime = nowDate;
             await dogDb5.save();
 
             dogDb6.status = "stake";
-            dogDb6.statusTime = new Date();
+            dogDb6.statusTime = nowDate;
             await dogDb6.save();
 
             dogDb7.status = "stake";
-            dogDb7.statusTime = new Date();
+            dogDb7.statusTime = nowDate;
             await dogDb7.save();
 
             dogDb8.status = "stake";
-            dogDb8.statusTime = new Date();
+            dogDb8.statusTime = nowDate;
             await dogDb8.save();
 
             dogDb9.status = "stake";
-            dogDb9.statusTime = new Date();
+            dogDb9.statusTime = nowDate;
             await dogDb9.save();
 
             dogDb10.status = "stake";
-            dogDb10.statusTime = new Date();
+            dogDb10.statusTime = nowDate;
             await dogDb10.save();
         } else {
             return res.status(400).send({ msg: "Dog inválido." });
@@ -188,9 +201,11 @@ router.post("/", async (req, res) => {
             dogId9: dog9,
             dogId10: dog10,
         };
-        const stake = await Stake.create(obj);
+        await Stake.create(obj);
 
-        return res.send({ msg: "OK", stake });
+        const stakes = await Stake.find({ user: req.userId });
+
+        return res.send({ msg: "OK", stakes });
     } catch (err) {
         return res.status(400).send({ msg: "Erro no servidor ao criar um stake." });
     }
@@ -217,7 +232,7 @@ router.post("/mint", async (req, res) => {
     }
 });
 
-router.get("/cancel", async (req, res) => {
+router.post("/cancel", async (req, res) => {
     const { stakeId } = req.body;
     try {
         const stake = await Stake.findOne({ user: req.userId, _id: stakeId });
@@ -242,7 +257,10 @@ router.get("/cancel", async (req, res) => {
 
             await Stake.findOneAndDelete({ user: req.userId, _id: stakeId });
         }
-        return res.send({ msg: "OK" });
+
+        const stakes = await Stake.find({ user: req.userId });
+
+        return res.send({ msg: "OK", stakes });
     } catch (err) {
         return res.status(400).send({ msg: "Erro no servidor ao cancelar um stake." });
     }
