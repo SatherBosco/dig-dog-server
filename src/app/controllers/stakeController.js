@@ -190,16 +190,16 @@ router.post("/", async (req, res) => {
 
         var obj = {
             user: req.userId,
-            dogId1: dog1,
-            dogId2: dog2,
-            dogId3: dog3,
-            dogId4: dog4,
-            dogId5: dog5,
-            dogId6: dog6,
-            dogId7: dog7,
-            dogId8: dog8,
-            dogId9: dog9,
-            dogId10: dog10,
+            dogId1: dogId1,
+            dogId2: dogId2,
+            dogId3: dogId3,
+            dogId4: dogId4,
+            dogId5: dogId5,
+            dogId6: dogId6,
+            dogId7: dogId7,
+            dogId8: dogId8,
+            dogId9: dogId9,
+            dogId10: dogId10,
         };
         await Stake.create(obj);
 
