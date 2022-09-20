@@ -89,18 +89,18 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-    const { dog1, dog2, dog3, dog4, dog5, dog6, dog7, dog8, dog9, dog10 } = req.body;
+    const { dogId1, dogId2, dogId3, dogId4, dogId5, dogId6, dogId7, dogId8, dogId9, dogId10 } = req.body;
     try {
-        const dogDb1 = await Dog.findOne({ dogId: dog1, user: req.userId });
-        const dogDb2 = await Dog.findOne({ dogId: dog2, user: req.userId });
-        const dogDb3 = await Dog.findOne({ dogId: dog3, user: req.userId });
-        const dogDb4 = await Dog.findOne({ dogId: dog4, user: req.userId });
-        const dogDb5 = await Dog.findOne({ dogId: dog5, user: req.userId });
-        const dogDb6 = await Dog.findOne({ dogId: dog6, user: req.userId });
-        const dogDb7 = await Dog.findOne({ dogId: dog7, user: req.userId });
-        const dogDb8 = await Dog.findOne({ dogId: dog8, user: req.userId });
-        const dogDb9 = await Dog.findOne({ dogId: dog9, user: req.userId });
-        const dogDb10 = await Dog.findOne({ dogId: dog10, user: req.userId });
+        const dogDb1 = await Dog.findOne({ dogId: dogId1, user: req.userId });
+        const dogDb2 = await Dog.findOne({ dogId: dogId2, user: req.userId });
+        const dogDb3 = await Dog.findOne({ dogId: dogId3, user: req.userId });
+        const dogDb4 = await Dog.findOne({ dogId: dogId4, user: req.userId });
+        const dogDb5 = await Dog.findOne({ dogId: dogId5, user: req.userId });
+        const dogDb6 = await Dog.findOne({ dogId: dogId6, user: req.userId });
+        const dogDb7 = await Dog.findOne({ dogId: dogId7, user: req.userId });
+        const dogDb8 = await Dog.findOne({ dogId: dogId8, user: req.userId });
+        const dogDb9 = await Dog.findOne({ dogId: dogId9, user: req.userId });
+        const dogDb10 = await Dog.findOne({ dogId: dogId10, user: req.userId });
 
         const nowDate = new Date();
 
