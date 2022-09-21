@@ -14,8 +14,6 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-const gameSettings = require('../../config/gameSettings.json');
-
 router.use(authMiddleware);
 
 async function mintStake(userId, amount, stakeId) {
