@@ -14,6 +14,8 @@ const User = require("../models/User");
 
 const router = express.Router();
 
+const gameSettings = require('../../config/gameSettings.json');
+
 router.use(authMiddleware);
 
 async function mintStake(userId, amount, stakeId) {
@@ -249,9 +251,12 @@ router.post("/cancel", async (req, res) => {
                 stake.dogId9,
                 stake.dogId10,
             ];
+            const fomeSede = new Date(new Date().getTime() + 5 * 5 * gameSettings.timeMult);
             for (let i = 0; i < 10; i++) {
                 let dog = await Dog.findOne({ dogId: dogsIds[i] });
                 dog.status = "trocou";
+                dog.hungry = fomeSede;
+                dog.thirst = fomeSede;
                 await dog.save();
             }
 
