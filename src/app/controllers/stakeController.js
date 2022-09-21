@@ -236,7 +236,7 @@ router.post("/cancel", async (req, res) => {
     const { stakeId } = req.body;
     try {
         const stake = await Stake.findOne({ user: req.userId, _id: stakeId });
-        if (!stake) {
+        if (stake) {
             const dogsIds = [
                 stake.dogId1,
                 stake.dogId2,
