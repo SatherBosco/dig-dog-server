@@ -5,6 +5,7 @@ const authMiddleware = require("../middlewares/auth");
 
 const gameSettings = require("../../config/gameSettings.json");
 
+const ethers = require('ethers');
 const SmartContractBuyDog = require('../contracts/BuyDog.json');
 
 const Dog = require("../models/Dog");

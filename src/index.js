@@ -185,8 +185,7 @@ const listenToEvents = () => {
 
                 if (buyDog.stake === true) {
                     const stake = await Stake.findOne({ user: user._id, _id: buyDog.stakeId });
-                    if (!stake) {
-                        const nowDate = new Date();
+                    if (stake) {
                         stake.lastMint = new Date(stake.lastMint.getTime() + qtde * 48 * gameSettings.timeMult);
                         await stake.save();
                     }
