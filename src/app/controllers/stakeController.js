@@ -214,7 +214,7 @@ router.post("/", async (req, res) => {
 
 router.post("/mint", async (req, res) => {
     const { stakeId } = req.body;
-    return res.status(400).send({ msg: "Stake bloqueado temporariamente para manutenção." });
+    // return res.status(400).send({ msg: "Stake bloqueado temporariamente para manutenção." });
     try {
         const stake = await Stake.findOne({ user: req.userId, _id: stakeId });
         if (!stake) return res.status(400).send({ msg: "Stake não encontrado." });
