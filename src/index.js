@@ -201,4 +201,4 @@ const listenToEvents = () => {
     });
 };
 
-listenToEvents();
+// listenToEvents();
