@@ -5,8 +5,8 @@ const authMiddleware = require("../middlewares/auth");
 
 const gameSettings = require("../../config/gameSettings.json");
 
-const ethers = require('ethers');
-const SmartContractBuyDog = require('../contracts/BuyDog.json');
+const ethers = require("ethers");
+const SmartContractBuyDog = require("../contracts/BuyDog.json");
 
 const Dog = require("../models/Dog");
 const BuyDog = require("../models/BuyDog");
@@ -105,7 +105,22 @@ router.post("/", async (req, res) => {
 
         const nowDate = new Date();
 
-        if (dogDb1 &&
+        if (
+            dogDb1.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb2.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb3.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb4.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb5.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb6.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb7.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb8.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb9.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb10.age.getTime() + 777600000 > nowDate.getTime()
+        )
+            return res.send({ msg: "Um ou mais dogs alcançaram a aposentadoria." });
+
+        if (
+            dogDb1 &&
             dogDb1.status !== "stake" &&
             dogDb1.hungry > nowDate &&
             dogDb1.thirst > nowDate &&
@@ -214,13 +229,37 @@ router.post("/", async (req, res) => {
 
 router.post("/mint", async (req, res) => {
     const { stakeId } = req.body;
-    return res.status(400).send({ msg: 'Em manutenção.' });
     try {
         const stake = await Stake.findOne({ user: req.userId, _id: stakeId });
         if (!stake) return res.status(400).send({ msg: "Stake não encontrado." });
 
         const nowDate = new Date();
         if (stake.lastMint.getTime() + 48 * gameSettings.timeMult > nowDate.getTime()) return res.status(400).send({ msg: "Stake fora do horario." });
+
+        const dogDb1 = await Dog.findOne({ dogId: stake.dogId1, user: req.userId });
+        const dogDb2 = await Dog.findOne({ dogId: stake.dogId2, user: req.userId });
+        const dogDb3 = await Dog.findOne({ dogId: stake.dogId3, user: req.userId });
+        const dogDb4 = await Dog.findOne({ dogId: stake.dogId4, user: req.userId });
+        const dogDb5 = await Dog.findOne({ dogId: stake.dogId5, user: req.userId });
+        const dogDb6 = await Dog.findOne({ dogId: stake.dogId6, user: req.userId });
+        const dogDb7 = await Dog.findOne({ dogId: stake.dogId7, user: req.userId });
+        const dogDb8 = await Dog.findOne({ dogId: stake.dogId8, user: req.userId });
+        const dogDb9 = await Dog.findOne({ dogId: stake.dogId9, user: req.userId });
+        const dogDb10 = await Dog.findOne({ dogId: stake.dogId10, user: req.userId });
+
+        if (
+            dogDb1.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb2.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb3.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb4.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb5.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb6.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb7.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb8.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb9.age.getTime() + 777600000 > nowDate.getTime() ||
+            dogDb10.age.getTime() + 777600000 > nowDate.getTime()
+        )
+            return res.send({ msg: "Um ou mais dogs alcançaram a aposentadoria." });
 
         const qtde = Math.trunc((nowDate.getTime() - stake.lastMint.getTime()) / gameSettings.timeMult / 48);
         const mintDog = await mintStake(req.userId, qtde, stake._id);
@@ -239,18 +278,7 @@ router.post("/cancel", async (req, res) => {
     try {
         const stake = await Stake.findOne({ user: req.userId, _id: stakeId });
         if (stake) {
-            const dogsIds = [
-                stake.dogId1,
-                stake.dogId2,
-                stake.dogId3,
-                stake.dogId4,
-                stake.dogId5,
-                stake.dogId6,
-                stake.dogId7,
-                stake.dogId8,
-                stake.dogId9,
-                stake.dogId10,
-            ];
+            const dogsIds = [stake.dogId1, stake.dogId2, stake.dogId3, stake.dogId4, stake.dogId5, stake.dogId6, stake.dogId7, stake.dogId8, stake.dogId9, stake.dogId10];
             const fomeSede = new Date(new Date().getTime() + 5 * 5 * gameSettings.timeMult);
             for (let i = 0; i < 10; i++) {
                 let dog = await Dog.findOne({ dogId: dogsIds[i] });

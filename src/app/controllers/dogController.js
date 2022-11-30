@@ -1,23 +1,23 @@
 require("dotenv").config();
 
-const Web3 = require('web3');
-const SmartContractNFT = require('../contracts/DDCDOG.json');
+const Web3 = require("web3");
+const SmartContractNFT = require("../contracts/DDCDOG.json");
 
-const ethers = require('ethers');
-const SmartContractBuyDog = require('../contracts/BuyDog.json');
+const ethers = require("ethers");
+const SmartContractBuyDog = require("../contracts/BuyDog.json");
 
-const express = require('express');
-const authMiddleware = require('../middlewares/auth');
+const express = require("express");
+const authMiddleware = require("../middlewares/auth");
 
-const gameSettings = require('../../config/gameSettings.json');
+const gameSettings = require("../../config/gameSettings.json");
 
-const User = require('../models/User');
-const Account = require('../models/Account');
-const Dog = require('../models/Dog');
-const House = require('../models/House');
-const Room = require('../models/Room')
-const Bed = require('../models/Bed');
-const BuyDog = require('../models/BuyDog');
+const User = require("../models/User");
+const Account = require("../models/Account");
+const Dog = require("../models/Dog");
+const House = require("../models/House");
+const Room = require("../models/Room");
+const Bed = require("../models/Bed");
+const BuyDog = require("../models/BuyDog");
 
 const router = express.Router();
 
@@ -118,15 +118,15 @@ async function transferFee(userId, boneFee) {
 // }
 
 async function getPenalidade(fome, sede) {
-    const nowDate = Math.trunc((new Date()).getTime() / 1000);
+    const nowDate = Math.trunc(new Date().getTime() / 1000);
     const fomeDate = Math.trunc(fome.getTime() / 1000);
     const sedeDate = Math.trunc(sede.getTime() / 1000);
 
     var fomeSedeObj = {
-        'disponivel': true,
-        'mudarFomeSede': false,
-        'novoFomeSede': 0
-    }
+        disponivel: true,
+        mudarFomeSede: false,
+        novoFomeSede: 0,
+    };
 
     if (fomeDate < nowDate || sedeDate < nowDate) {
         const diff = nowDate - (fomeDate < sedeDate ? fomeDate : sedeDate);
@@ -136,8 +136,7 @@ async function getPenalidade(fome, sede) {
         const restoDaPenalidade = diff % oneDayPlusThreeBars;
         var novoDate = (fomeDate < sedeDate ? fomeDate : sedeDate) + (diff - restoDaPenalidade);
 
-        if (restoDaPenalidade < oneDay)
-            fomeSedeObj.disponivel = false;
+        if (restoDaPenalidade < oneDay) fomeSedeObj.disponivel = false;
         else {
             novoDate = novoDate + oneDayPlusThreeBars;
         }
@@ -149,17 +148,14 @@ async function getPenalidade(fome, sede) {
     return fomeSedeObj;
 }
 
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
     try {
         // const NODE_URL = 'https://speedy-nodes-nyc.moralis.io/b22571774cee89066f4cf22d/bsc/mainnet';
-        const NODE_URL = 'https://bsc-dataseed.binance.org/';
+        const NODE_URL = "https://bsc-dataseed.binance.org/";
         const provider = new Web3.providers.HttpProvider(NODE_URL);
         const web3 = new Web3(provider);
 
-        const SmartContractNFTObj = new web3.eth.Contract(
-            SmartContractNFT,
-            '0x90487b4Be33FaF888f4D9145172c11B70B5fF821'
-        );
+        const SmartContractNFTObj = new web3.eth.Contract(SmartContractNFT, "0x90487b4Be33FaF888f4D9145172c11B70B5fF821");
 
         const { wallet } = await User.findOne({ _id: req.userId });
 
@@ -186,9 +182,13 @@ router.get('/', async (req, res) => {
                 if (dogInDB) {
                     if (dogInDB.user != req.userId) {
                         const fomeSede = new Date(new Date().getTime() + 5 * 5 * gameSettings.timeMult);
-                        const changeDog = await Dog.findOneAndUpdate({ dogId: dog }, {
-                            '$set': { 'user': req.userId, 'status': 'trocou', 'hungry': fomeSede, 'thirst': fomeSede, 'statusTime': new Date() }
-                        }, { new: true });
+                        const changeDog = await Dog.findOneAndUpdate(
+                            { dogId: dog },
+                            {
+                                $set: { user: req.userId, status: "trocou", hungry: fomeSede, thirst: fomeSede, statusTime: new Date() },
+                            },
+                            { new: true }
+                        );
                         await changeDog.save();
 
                         dogsFromDB.push(changeDog);
@@ -218,16 +218,16 @@ router.get('/', async (req, res) => {
                     const raridade = Math.trunc((dogCode - 1) / 25);
 
                     var obj = {
-                        'dogId': dog,
-                        'dogCode': dogCode,
-                        'rarity': raridade,
-                        'affinity': afinidade,
-                        'clan': cla,
-                        'user': req.userId,
-                        'hungry': fomeSede,
-                        'thirst': fomeSede,
-                        'status': 'disponivel',
-                        'statusTime': new Date()
+                        dogId: dog,
+                        dogCode: dogCode,
+                        rarity: raridade,
+                        affinity: afinidade,
+                        clan: cla,
+                        user: req.userId,
+                        hungry: fomeSede,
+                        thirst: fomeSede,
+                        status: "disponivel",
+                        statusTime: new Date(),
                     };
                     const newDog = await Dog.create(obj);
 
@@ -236,20 +236,19 @@ router.get('/', async (req, res) => {
             }
         }
 
-        return res.send({ msg: 'OK', dogsFromDB });
+        return res.send({ msg: "OK", dogsFromDB });
     } catch (err) {
-        return res.status(400).send({ msg: 'Error loading dogs' });
+        return res.status(400).send({ msg: "Error loading dogs" });
     }
 });
 
-router.put('/fome/:dogId', async (req, res) => {
+router.put("/fome/:dogId", async (req, res) => {
     try {
         const dog = await Dog.findOne({ user: req.userId, dogId: req.params.dogId });
         const nowDate = new Date();
 
         const penalidadeVerify = await getPenalidade(dog.hungry, dog.thirst);
-        if (!penalidadeVerify.disponivel)
-            return res.send({ msg: 'O dog sofreu uma penalidade por não receber cuidados.', dog });
+        if (!penalidadeVerify.disponivel) return res.send({ msg: "O dog sofreu uma penalidade por não receber cuidados.", dog });
 
         if (penalidadeVerify.mudarFomeSede) {
             dog.hungry = new Date(penalidadeVerify.novoFomeSede * 1000);
@@ -259,38 +258,35 @@ router.put('/fome/:dogId', async (req, res) => {
 
         const fomeAtual = Math.floor(Math.abs(dog.hungry.getTime() - nowDate.getTime()) / gameSettings.timeMult);
 
-        if (fomeAtual >= 20)
-            return res.send({ msg: 'Dog sem fome.' });
+        if (fomeAtual >= 20) return res.send({ msg: "Dog sem fome." });
 
         const { food } = await Account.findOne({ user: req.userId });
 
         const alimentarEm = 4 - Math.floor(fomeAtual / 5);
 
-        if (food < alimentarEm)
-            return res.status(400).send({ msg: 'Sem comida.' });
+        if (food < alimentarEm) return res.status(400).send({ msg: "Sem comida." });
 
         const newFome = new Date(dog.hungry.getTime() + alimentarEm * 5 * gameSettings.timeMult);
 
-        const account = await Account.findOneAndUpdate({ user: req.userId }, { '$inc': { 'food': -alimentarEm } }, { new: true });
+        const account = await Account.findOneAndUpdate({ user: req.userId }, { $inc: { food: -alimentarEm } }, { new: true });
         await account.save();
 
         dog.hungry = newFome;
         await dog.save();
 
-        return res.send({ msg: 'OK', account, dog });
+        return res.send({ msg: "OK", account, dog });
     } catch (err) {
-        return res.status(400).send({ msg: 'Erro no servidor ao alimentar o dog.' });
+        return res.status(400).send({ msg: "Erro no servidor ao alimentar o dog." });
     }
 });
 
-router.put('/sede/:dogId', async (req, res) => {
+router.put("/sede/:dogId", async (req, res) => {
     try {
         const dog = await Dog.findOne({ user: req.userId, dogId: req.params.dogId });
         const nowDate = new Date();
 
         const penalidadeVerify = await getPenalidade(dog.hungry, dog.thirst);
-        if (!penalidadeVerify.disponivel)
-            return res.send({ msg: 'O dog sofreu uma penalidade por não receber cuidados.', dog });
+        if (!penalidadeVerify.disponivel) return res.send({ msg: "O dog sofreu uma penalidade por não receber cuidados.", dog });
 
         if (penalidadeVerify.mudarFomeSede) {
             dog.hungry = new Date(penalidadeVerify.novoFomeSede * 1000);
@@ -300,8 +296,7 @@ router.put('/sede/:dogId', async (req, res) => {
 
         const sedeAtual = Math.floor(Math.abs(dog.thirst.getTime() - nowDate.getTime()) / gameSettings.timeMult);
 
-        if (sedeAtual >= 20)
-            return res.send({ msg: 'Dog sem sede.' });
+        if (sedeAtual >= 20) return res.send({ msg: "Dog sem sede." });
 
         const hidratarEm = 4 - Math.floor(sedeAtual / 5);
 
@@ -310,181 +305,160 @@ router.put('/sede/:dogId', async (req, res) => {
         dog.thirst = newSede;
         await dog.save();
 
-        return res.send({ msg: 'OK', dog });
+        return res.send({ msg: "OK", dog });
     } catch (err) {
-        return res.status(400).send({ msg: 'Erro no servidor ao hidratar o dog.' });
+        return res.status(400).send({ msg: "Erro no servidor ao hidratar o dog." });
     }
 });
 
-router.post('/action/:dogId', async (req, res) => {
+router.post("/action/:dogId", async (req, res) => {
     try {
         const dog = await Dog.findOne({ user: req.userId, dogId: req.params.dogId });
         const nowDate = new Date();
 
+        if (dog.age.getTime() + 777600000 > nowDate.getTime()) return res.send({ msg: "O dog alcançou a aposentadoria." });
+
         const penalidadeVerify = await getPenalidade(dog.hungry, dog.thirst);
-        if (!penalidadeVerify.disponivel)
-            return res.send({ msg: 'O dog sofreu uma penalidade por não receber cuidados.', dog });
+        if (!penalidadeVerify.disponivel) return res.send({ msg: "O dog sofreu uma penalidade por não receber cuidados.", dog });
 
         if (penalidadeVerify.mudarFomeSede) {
             dog.hungry = new Date(penalidadeVerify.novoFomeSede * 1000);
             dog.thirst = new Date(penalidadeVerify.novoFomeSede * 1000);
-            await dog.save()
+            await dog.save();
         }
 
-        if (dog.statusTime > nowDate)
-            return res.send({ msg: 'Dog ocupado.' });
+        if (dog.statusTime > nowDate) return res.send({ msg: "Dog ocupado." });
 
-        const boneCalc = dog.status == 'trocou' ? 0 : Math.ceil(gameSettings.reward[dog.rarity] / (gameSettings.dogBoneIncrPow[dog.clan]));
+        const boneCalc = dog.status == "trocou" ? 0 : Math.ceil(gameSettings.reward[dog.rarity] / gameSettings.dogBoneIncrPow[dog.clan]);
         const boneIncr = boneCalc * 0.9;
         const boneFee = boneCalc - boneIncr;
 
-        const dogTypeTime = new Date(nowDate.getTime() + (gameSettings.dogActionTime[dog.clan] * gameSettings.timeMult));
+        const dogTypeTime = new Date(nowDate.getTime() + gameSettings.dogActionTime[dog.clan] * gameSettings.timeMult);
 
         switch (dog.status) {
-            case 'disponivel':
-            case 'dormindo':
+            case "disponivel":
+            case "dormindo":
                 const { bone } = await Account.findOne({ user: req.userId });
 
                 const transporteTaxa = Math.ceil((gameSettings.reward[dog.rarity] / gameSettings.dogBoneIncrPow[dog.clan]) * 0.05);
-                if (bone < transporteTaxa)
-                    return res.send({ msg: 'Sem Bone para taxa de transporte.' });
+                if (bone < transporteTaxa) return res.send({ msg: "Sem Bone para taxa de transporte." });
 
-                const account = await Account.findOneAndUpdate({ user: req.userId }, { '$inc': { 'bone': -transporteTaxa } }, { new: true });
+                const account = await Account.findOneAndUpdate({ user: req.userId }, { $inc: { bone: -transporteTaxa } }, { new: true });
                 await account.save();
 
-                dog.status = 'cavando';
+                dog.status = "cavando";
                 dog.statusTime = dogTypeTime;
                 await dog.save();
 
-                return res.send({ msg: 'OK', account, dog });
-            case 'cavando':
-            case 'retornou':
-            case 'trocou':
+                return res.send({ msg: "OK", account, dog });
+            case "cavando":
+            case "retornou":
+            case "trocou":
                 const { bedId, casaType, roomId, houseId } = req.body;
 
                 const bed = await Bed.findOne({ _id: bedId, user: req.userId });
 
-                if (bed == null)
-                    return res.send({ msg: 'Cama inválida.' });
+                if (bed == null) return res.send({ msg: "Cama inválida." });
 
-                if (bed.useBedTime > nowDate)
-                    return res.send({ msg: 'Cama já em uso.' });
+                if (bed.useBedTime > nowDate) return res.send({ msg: "Cama já em uso." });
 
-                if (bed.expirationBedTime < dogTypeTime)
-                    return res.send({ msg: 'Cama com tempo disponível menor do que o necessário.' });
+                if (bed.expirationBedTime < dogTypeTime) return res.send({ msg: "Cama com tempo disponível menor do que o necessário." });
 
                 if (casaType == "room") {
-                    if (roomId == "")
-                        return res.send({ msg: 'Quarto inválida.' });
+                    if (roomId == "") return res.send({ msg: "Quarto inválida." });
 
                     const usedRoom = await Room.findOne({ user: req.userId, _id: roomId });
 
-                    if (usedRoom == null)
-                        return res.send({ msg: 'Quarto inválida.' });
+                    if (usedRoom == null) return res.send({ msg: "Quarto inválida." });
 
-                    if (usedRoom.useRoomTime > nowDate)
-                        return res.send({ msg: 'Quarto já em uso.' });
+                    if (usedRoom.useRoomTime > nowDate) return res.send({ msg: "Quarto já em uso." });
 
-                        if (new Date(usedRoom.roomStartTime.getTime() + Math.trunc((usedRoom.timeMult * 24.5 * gameSettings.timeMult))) < dogTypeTime)
-                        return res.send({ msg: 'Quarto com tempo disponível menor do que o necessário.' });
-                    } else {
-                        if (houseId == "")
-                        return res.send({ msg: 'Casa inválida.' });
-                        
-                        const usedHouse = await House.findOne({ user: req.userId, _id: houseId });
-                        
-                        if (usedHouse == null)
-                        return res.send({ msg: 'Casa inválida.' });
-                        
-                        if (usedHouse.useHousetime > nowDate)
-                        return res.send({ msg: 'Casa já em uso.' });
-                    }
-                    
-                    const usedBed = await Bed.findOneAndUpdate({ user: req.userId, _id: bedId }, { '$set': { 'useBedTime': dogTypeTime } }, { new: true });
-                    await usedBed.save();
-                    
-                    dog.status = 'dormindo';
-                    dog.statusTime = dogTypeTime;
-                    await dog.save();
-                    
-                    var usedHouse;
-                    var usedRoom;
-                    
-                    if (casaType == "room") {
-                        usedRoom = await Room.findOneAndUpdate({ user: req.userId, _id: roomId }, { '$set': { 'useRoomTime': dogTypeTime } }, { new: true });
-                        await usedRoom.save();
-                    } else {
-                        usedHouse = await House.findOneAndUpdate({ user: req.userId, _id: houseId }, { '$set': { 'useHouseTime': dogTypeTime } }, { new: true });
-                        await usedHouse.save();
-                    }
-                    
-                    await transferFee(req.userId, boneFee);
-                    
-                    const usedAccount = await Account.findOneAndUpdate({ user: req.userId }, { '$inc': { 'bone': boneIncr } }, { new: true });
-                    await usedAccount.save();
-                    
-                    return res.send({ msg: 'OK', usedAccount, dog, usedBed, usedHouse, usedRoom });
-                    default:
-                        return res.send({ msg: 'Status não identificado' });
-                    }
-                } catch (err) {
-                    return res.status(400).send({ msg: 'Erro no servidor ao gerenciar o pet.' });
+                    if (new Date(usedRoom.roomStartTime.getTime() + Math.trunc(usedRoom.timeMult * 24.5 * gameSettings.timeMult)) < dogTypeTime)
+                        return res.send({ msg: "Quarto com tempo disponível menor do que o necessário." });
+                } else {
+                    if (houseId == "") return res.send({ msg: "Casa inválida." });
+
+                    const usedHouse = await House.findOne({ user: req.userId, _id: houseId });
+
+                    if (usedHouse == null) return res.send({ msg: "Casa inválida." });
+
+                    if (usedHouse.useHousetime > nowDate) return res.send({ msg: "Casa já em uso." });
                 }
-            });
-            
-            router.post('/buy', async (req, res) => {
-                const buyDogReq = req.body;
-                return res.status(400).send({ msg: 'Em manutenção.' });
-                try {
-                    
-                    let buyDog;
-                    
-                    const buyDogDate = await BuyDog.findOne({ user: req.userId }).sort({ 'createdAt': -1 }).limit(1);
-                    
-                    if (buyDogDate !== null) {
-                        if (!buyDogDate.paid) {
-                            if ((new Date(buyDogDate.createdAt).getTime() + 1200000) > new Date().getTime()) { // ADICIONAR VARIAVEL PARA A DATA
-                    if ((new Date(buyDogDate.createdAt).getTime() + 600000) > new Date().getTime()) { // ADICIONAR VARIAVEL PARA A DATA
+
+                const usedBed = await Bed.findOneAndUpdate({ user: req.userId, _id: bedId }, { $set: { useBedTime: dogTypeTime } }, { new: true });
+                await usedBed.save();
+
+                dog.status = "dormindo";
+                dog.statusTime = dogTypeTime;
+                await dog.save();
+
+                var usedHouse;
+                var usedRoom;
+
+                if (casaType == "room") {
+                    usedRoom = await Room.findOneAndUpdate({ user: req.userId, _id: roomId }, { $set: { useRoomTime: dogTypeTime } }, { new: true });
+                    await usedRoom.save();
+                } else {
+                    usedHouse = await House.findOneAndUpdate({ user: req.userId, _id: houseId }, { $set: { useHouseTime: dogTypeTime } }, { new: true });
+                    await usedHouse.save();
+                }
+
+                await transferFee(req.userId, boneFee);
+
+                const usedAccount = await Account.findOneAndUpdate({ user: req.userId }, { $inc: { bone: boneIncr } }, { new: true });
+                await usedAccount.save();
+
+                return res.send({ msg: "OK", usedAccount, dog, usedBed, usedHouse, usedRoom });
+            default:
+                return res.send({ msg: "Status não identificado" });
+        }
+    } catch (err) {
+        return res.status(400).send({ msg: "Erro no servidor ao gerenciar o pet." });
+    }
+});
+
+router.post("/buy", async (req, res) => {
+    const buyDogReq = req.body;
+    try {
+        let buyDog;
+
+        const buyDogDate = await BuyDog.findOne({ user: req.userId }).sort({ createdAt: -1 }).limit(1);
+
+        if (buyDogDate !== null) {
+            if (!buyDogDate.paid) {
+                if (new Date(buyDogDate.createdAt).getTime() + 1200000 > new Date().getTime()) {
+                    // ADICIONAR VARIAVEL PARA A DATA
+                    if (new Date(buyDogDate.createdAt).getTime() + 600000 > new Date().getTime()) {
+                        // ADICIONAR VARIAVEL PARA A DATA
                         buyDog = buyDogDate;
-                        return res.send({ msg: 'OK', buyDog });
+                        return res.send({ msg: "OK", buyDog });
                     } else {
-                        return res.status(400).send({ msg: 'Caso não tenha completado a última compra espere pelo menos 20 minutos para solicitar outra.' });
+                        return res.status(400).send({ msg: "Caso não tenha completado a última compra espere pelo menos 20 minutos para solicitar outra." });
                     }
                 }
             }
         }
 
         const account = await Account.findOne({ user: req.userId });
-        if (buyDogReq.amount * gameSettings.dogPrice > account.bone)
-            return res.status(400).send({ msg: 'Você não possui Bone o suficiente.' });
+        if (buyDogReq.amount * gameSettings.dogPrice > account.bone) return res.status(400).send({ msg: "Você não possui Bone o suficiente." });
 
-        const { transactionId } = await BuyDog.findOne({}).sort({ 'transactionId': -1 }).limit(1);
+        const { transactionId } = await BuyDog.findOne({}).sort({ transactionId: -1 }).limit(1);
         const user = await User.findOne({ _id: req.userId });
 
         const newTransactionId = transactionId + 1;
 
-        const NODE_URL = 'https://bsc-dataseed.binance.org/';
+        const NODE_URL = "https://bsc-dataseed.binance.org/";
         const provider = new ethers.providers.JsonRpcProvider(NODE_URL);
 
-        const _contract = '0x6576243556394759470B4370dA5C4EB655542F10';
-        const SmartContractBuyDogObj = new ethers.Contract(
-            _contract,
-            SmartContractBuyDog,
-            provider
-        );
+        const _contract = "0x6576243556394759470B4370dA5C4EB655542F10";
+        const SmartContractBuyDogObj = new ethers.Contract(_contract, SmartContractBuyDog, provider);
 
         const _recipient = user.wallet.toString();
         const _amount = buyDogReq.amount;
 
         const _transactionId = parseInt(newTransactionId);
         _date = parseInt(new Date().getTime() / 1000);
-        let buyDogTransaction = await SmartContractBuyDogObj.getMessage(
-            _recipient,
-            _amount,
-            _transactionId,
-            _date,
-            _contract
-        );
+        let buyDogTransaction = await SmartContractBuyDogObj.getMessage(_recipient, _amount, _transactionId, _date, _contract);
 
         const private = process.env.PRIVATE_KEY;
         const signer = new ethers.Wallet(private);
@@ -492,20 +466,20 @@ router.post('/action/:dogId', async (req, res) => {
         sigMessage = await signer.signMessage(ethers.utils.arrayify(buyDogTransaction));
 
         let buyDogObj = {
-            'transactionId': newTransactionId,
-            'paid': false,
-            'user': req.userId,
-            'signature': sigMessage,
-            'amount': _amount.toString(),
-            'date': _date
-        }
+            transactionId: newTransactionId,
+            paid: false,
+            user: req.userId,
+            signature: sigMessage,
+            amount: _amount.toString(),
+            date: _date,
+        };
 
         buyDog = await BuyDog.create(buyDogObj);
 
-        return res.send({ msg: 'OK', buyDog });
+        return res.send({ msg: "OK", buyDog });
     } catch (err) {
-        return res.status(400).send({ msg: 'Erro do servidor.' });
+        return res.status(400).send({ msg: "Erro do servidor." });
     }
 });
 
-module.exports = app => app.use('/dogs', router);
+module.exports = (app) => app.use("/dogs", router);

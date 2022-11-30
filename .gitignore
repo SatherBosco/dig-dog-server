@@ -1,3 +1,5 @@
 node_modules
 .env
 src/config/auth.json
+.yarn
+.yarnrc.yml
