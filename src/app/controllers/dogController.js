@@ -419,6 +419,7 @@ router.post("/action/:dogId", async (req, res) => {
 
 router.post("/buy", async (req, res) => {
     const buyDogReq = req.body;
+    return res.status(400).send({ msg: "Em manutenção." });
     try {
         let buyDog;
 

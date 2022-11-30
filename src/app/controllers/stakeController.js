@@ -91,6 +91,7 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
     const { dogId1, dogId2, dogId3, dogId4, dogId5, dogId6, dogId7, dogId8, dogId9, dogId10 } = req.body;
+    return res.status(400).send({ msg: "Em manutenção." });
     try {
         const dogDb1 = await Dog.findOne({ dogId: dogId1, user: req.userId });
         const dogDb2 = await Dog.findOne({ dogId: dogId2, user: req.userId });
@@ -229,6 +230,7 @@ router.post("/", async (req, res) => {
 
 router.post("/mint", async (req, res) => {
     const { stakeId } = req.body;
+    return res.status(400).send({ msg: "Em manutenção." });
     try {
         const stake = await Stake.findOne({ user: req.userId, _id: stakeId });
         if (!stake) return res.status(400).send({ msg: "Stake não encontrado." });
@@ -275,6 +277,7 @@ router.post("/mint", async (req, res) => {
 
 router.post("/cancel", async (req, res) => {
     const { stakeId } = req.body;
+    return res.status(400).send({ msg: "Em manutenção." });
     try {
         const stake = await Stake.findOne({ user: req.userId, _id: stakeId });
         if (stake) {
