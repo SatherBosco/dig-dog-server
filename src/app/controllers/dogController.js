@@ -316,7 +316,7 @@ router.post("/action/:dogId", async (req, res) => {
         const dog = await Dog.findOne({ user: req.userId, dogId: req.params.dogId });
         const nowDate = new Date();
 
-        if (dog.age.getTime() + 777600000 < nowDate.getTime()) return res.send({ msg: "O dog alcançou a aposentadoria." });
+        if (dog.age.getTime() + 7776000000 < nowDate.getTime()) return res.send({ msg: "O dog alcançou a aposentadoria." });
 
         const penalidadeVerify = await getPenalidade(dog.hungry, dog.thirst);
         if (!penalidadeVerify.disponivel) return res.send({ msg: "O dog sofreu uma penalidade por não receber cuidados.", dog });
