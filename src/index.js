@@ -242,4 +242,4 @@ const listenToEvents = () => {
     });
 };
 
-listenToEvents();
+// listenToEvents();

@@ -385,63 +385,65 @@ router.post('/action/:dogId', async (req, res) => {
                     if (usedRoom.useRoomTime > nowDate)
                         return res.send({ msg: 'Quarto já em uso.' });
 
-                    if (new Date(usedRoom.roomStartTime.getTime() + Math.trunc((usedRoom.timeMult * 24.5 * gameSettings.timeMult))) < dogTypeTime)
+                        if (new Date(usedRoom.roomStartTime.getTime() + Math.trunc((usedRoom.timeMult * 24.5 * gameSettings.timeMult))) < dogTypeTime)
                         return res.send({ msg: 'Quarto com tempo disponível menor do que o necessário.' });
-                } else {
-                    if (houseId == "")
+                    } else {
+                        if (houseId == "")
                         return res.send({ msg: 'Casa inválida.' });
-
-                    const usedHouse = await House.findOne({ user: req.userId, _id: houseId });
-
-                    if (usedHouse == null)
+                        
+                        const usedHouse = await House.findOne({ user: req.userId, _id: houseId });
+                        
+                        if (usedHouse == null)
                         return res.send({ msg: 'Casa inválida.' });
-
-                    if (usedHouse.useHousetime > nowDate)
+                        
+                        if (usedHouse.useHousetime > nowDate)
                         return res.send({ msg: 'Casa já em uso.' });
+                    }
+                    
+                    const usedBed = await Bed.findOneAndUpdate({ user: req.userId, _id: bedId }, { '$set': { 'useBedTime': dogTypeTime } }, { new: true });
+                    await usedBed.save();
+                    
+                    dog.status = 'dormindo';
+                    dog.statusTime = dogTypeTime;
+                    await dog.save();
+                    
+                    var usedHouse;
+                    var usedRoom;
+                    
+                    if (casaType == "room") {
+                        usedRoom = await Room.findOneAndUpdate({ user: req.userId, _id: roomId }, { '$set': { 'useRoomTime': dogTypeTime } }, { new: true });
+                        await usedRoom.save();
+                    } else {
+                        usedHouse = await House.findOneAndUpdate({ user: req.userId, _id: houseId }, { '$set': { 'useHouseTime': dogTypeTime } }, { new: true });
+                        await usedHouse.save();
+                    }
+                    
+                    await transferFee(req.userId, boneFee);
+                    
+                    const usedAccount = await Account.findOneAndUpdate({ user: req.userId }, { '$inc': { 'bone': boneIncr } }, { new: true });
+                    await usedAccount.save();
+                    
+                    return res.send({ msg: 'OK', usedAccount, dog, usedBed, usedHouse, usedRoom });
+                    default:
+                        return res.send({ msg: 'Status não identificado' });
+                    }
+                } catch (err) {
+                    return res.status(400).send({ msg: 'Erro no servidor ao gerenciar o pet.' });
                 }
-
-                const usedBed = await Bed.findOneAndUpdate({ user: req.userId, _id: bedId }, { '$set': { 'useBedTime': dogTypeTime } }, { new: true });
-                await usedBed.save();
-
-                dog.status = 'dormindo';
-                dog.statusTime = dogTypeTime;
-                await dog.save();
-
-                var usedHouse;
-                var usedRoom;
-
-                if (casaType == "room") {
-                    usedRoom = await Room.findOneAndUpdate({ user: req.userId, _id: roomId }, { '$set': { 'useRoomTime': dogTypeTime } }, { new: true });
-                    await usedRoom.save();
-                } else {
-                    usedHouse = await House.findOneAndUpdate({ user: req.userId, _id: houseId }, { '$set': { 'useHouseTime': dogTypeTime } }, { new: true });
-                    await usedHouse.save();
-                }
-
-                await transferFee(req.userId, boneFee);
-
-                const usedAccount = await Account.findOneAndUpdate({ user: req.userId }, { '$inc': { 'bone': boneIncr } }, { new: true });
-                await usedAccount.save();
-
-                return res.send({ msg: 'OK', usedAccount, dog, usedBed, usedHouse, usedRoom });
-            default:
-                return res.send({ msg: 'Status não identificado' });
-        }
-    } catch (err) {
-        return res.status(400).send({ msg: 'Erro no servidor ao gerenciar o pet.' });
-    }
-});
-
-router.post('/buy', async (req, res) => {
-    const buyDogReq = req.body;
-    try {
-        let buyDog;
-
-        const buyDogDate = await BuyDog.findOne({ user: req.userId }).sort({ 'createdAt': -1 }).limit(1);
-
-        if (buyDogDate !== null) {
-            if (!buyDogDate.paid) {
-                if ((new Date(buyDogDate.createdAt).getTime() + 1200000) > new Date().getTime()) { // ADICIONAR VARIAVEL PARA A DATA
+            });
+            
+            router.post('/buy', async (req, res) => {
+                const buyDogReq = req.body;
+                return res.status(400).send({ msg: 'Em manutenção.' });
+                try {
+                    
+                    let buyDog;
+                    
+                    const buyDogDate = await BuyDog.findOne({ user: req.userId }).sort({ 'createdAt': -1 }).limit(1);
+                    
+                    if (buyDogDate !== null) {
+                        if (!buyDogDate.paid) {
+                            if ((new Date(buyDogDate.createdAt).getTime() + 1200000) > new Date().getTime()) { // ADICIONAR VARIAVEL PARA A DATA
                     if ((new Date(buyDogDate.createdAt).getTime() + 600000) > new Date().getTime()) { // ADICIONAR VARIAVEL PARA A DATA
                         buyDog = buyDogDate;
                         return res.send({ msg: 'OK', buyDog });
