@@ -8,7 +8,6 @@ const SmartContractWithdraw = require("./app/contracts/DDCWithdraw.json");
 const SmartContractBuyDog = require("./app/contracts/BuyDog.json");
 const SmartContractBuyHouse = require("./app/contracts/BuyHouse.json");
 const SmartContractWithdrawVesting = require("./app/contracts/WithdrawVesting.json");
-const SmartContractBUSD = require("./app/contracts/BUSD.json");
 const ethers = require("ethers");
 
 const gameSettings = require("./config/gameSettings.json");
@@ -45,160 +44,150 @@ require("./app/controllers/index")(app);
 app.listen(3000);
 
 const listenToEvents = () => {
-    const NODE_URL = "https://bsc-dataseed2.ninicoin.io";
+    const NODE_URL = "https://skilled-holy-vineyard.bsc.discover.quiknode.pro/26f45bf2c330d4ff918e55024b2525fd5e0dfb4f/";
     const provider = new ethers.providers.JsonRpcProvider(NODE_URL);
 
-    // const SmartContractDepositObj = new ethers.Contract("0xDaE5F14f358398512758fEE9Df8333000Ff344C9", SmartContractDeposit, provider);
+    const SmartContractDepositObj = new ethers.Contract("0xDaE5F14f358398512758fEE9Df8333000Ff344C9", SmartContractDeposit, provider);
 
-    // const SmartContractWithdrawObj = new ethers.Contract("0x742FAC2431ae79A5cf2F73A3EeB67f740411b326", SmartContractWithdraw, provider);
+    const SmartContractWithdrawObj = new ethers.Contract("0x742FAC2431ae79A5cf2F73A3EeB67f740411b326", SmartContractWithdraw, provider);
 
-    // const SmartContractBuyDogObj = new ethers.Contract("0x6576243556394759470B4370dA5C4EB655542F10", SmartContractBuyDog, provider);
+    const SmartContractBuyDogObj = new ethers.Contract("0x6576243556394759470B4370dA5C4EB655542F10", SmartContractBuyDog, provider);
 
-    // const SmartContractBuyHouseObj = new ethers.Contract("0xCd39122dD289D4DD95b317075F9921A9624BD063", SmartContractBuyHouse, provider);
+    const SmartContractBuyHouseObj = new ethers.Contract("0xCd39122dD289D4DD95b317075F9921A9624BD063", SmartContractBuyHouse, provider);
 
-    // const SmartContractWithdrawVestingObj = new ethers.Contract("0x656A376fCa48D734BcBF78BD177f20B364395Fff", SmartContractWithdrawVesting, provider);
+    const SmartContractWithdrawVestingObj = new ethers.Contract("0x656A376fCa48D734BcBF78BD177f20B364395Fff", SmartContractWithdrawVesting, provider);
 
-    const SmartContractBUSDObj = new ethers.Contract("0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56", SmartContractBUSD, provider);
-    console.log(provider);
-    // SmartContractDepositObj.on("DepositDone", async (payer, amount, transactionId, date) => {
-    //     console.log(`
-    //     -- DEPOSIT --
-    //     From ${payer}
-    //     Amount ${amount}
-    //     Id ${transactionId}
-    //     Date ${date}
-    //     `);
-    //     const deposit = await Deposit.findOne({ transactionId: transactionId });
-    //     if (deposit) {
-    //         if (!deposit.paid) {
-    //             deposit.paid = true;
-    //             await deposit.save();
-
-    //             const address = payer.toLowerCase();
-    //             const user = await User.findOne({ wallet: address });
-    //             const account = await Account.findOne({ user: user._id });
-    //             if (account) {
-    //                 account.bone = account.bone + parseInt(ethers.utils.formatEther(amount));
-    //                 await account.save();
-    //             }
-    //         }
-    //     }
-    // });
-
-    // SmartContractWithdrawObj.on("WithdrawDone", async (payer, amount, transactionId, date) => {
-    //     console.log(`
-    //     -- WITHDRAW --
-    //     From ${payer}
-    //     Amount ${amount}
-    //     Id ${transactionId}
-    //     Date ${date}
-    //     `);
-    //     const withdraw = await Withdraw.findOne({ transactionId: transactionId });
-    //     if (withdraw) {
-    //         if (!withdraw.paid) {
-    //             withdraw.paid = true;
-    //             await withdraw.save();
-
-    //             const address = payer.toLowerCase();
-    //             const user = await User.findOne({ wallet: address });
-    //             const account = await Account.findOne({ user: user._id });
-    //             if (account) {
-    //                 account.bone = account.bone - parseInt(ethers.utils.formatEther(amount));
-    //                 await account.save();
-    //             }
-    //         }
-    //     }
-    // });
-
-    // SmartContractBuyDogObj.on("BuyDogDone", async (payer, amount, transactionId, date) => {
-    //     console.log(`
-    //     -- BUY DOG --
-    //     From ${payer}
-    //     Amount ${amount}
-    //     Id ${transactionId}
-    //     Date ${date}
-    //     `);
-    //     const buyDog = await BuyDog.findOne({ transactionId: transactionId });
-    //     if (buyDog) {
-    //         if (!buyDog.paid) {
-    //             buyDog.paid = true;
-    //             await buyDog.save();
-
-    //             const address = payer.toLowerCase();
-    //             const user = await User.findOne({ wallet: address });
-    //             const account = await Account.findOne({ user: user._id });
-    //             if (account && buyDog.stake === false) {
-    //                 account.bone = account.bone - amount * gameSettings.dogPrice;
-    //                 await account.save();
-    //             }
-
-    //             if (buyDog.stake === true) {
-    //                 const stake = await Stake.findOne({ user: user._id, _id: buyDog.stakeId });
-    //                 if (stake) {
-    //                     stake.lastMint = new Date(stake.lastMint.getTime() + 48 * amount * gameSettings.timeMult);
-    //                     await stake.save();
-    //                 }
-    //             }
-    //         }
-    //     }
-    // });
-
-    // SmartContractBuyHouseObj.on("BuyHouseDone", async (payer, amount, transactionId, date) => {
-    //     console.log(`
-    //     -- BUY HOUSE --
-    //     From ${payer}
-    //     Amount ${amount}
-    //     Id ${transactionId}
-    //     Date ${date}
-    //     `);
-    //     const buyHouse = await BuyHouse.findOne({ transactionId: transactionId });
-    //     if (buyHouse) {
-    //         if (!buyHouse.paid) {
-    //             buyHouse.paid = true;
-    //             await buyHouse.save();
-
-    //             const address = payer.toLowerCase();
-    //             const user = await User.findOne({ wallet: address });
-    //             const account = await Account.findOne({ user: user._id });
-    //             if (account) {
-    //                 account.bone = account.bone - amount * gameSettings.housePrice;
-    //                 await account.save();
-    //             }
-    //         }
-    //     }
-    // });
-
-    // SmartContractWithdrawVestingObj.on("WithdrawToBoneDone", async (payer, amount, date) => {
-    //     console.log(`
-    //     -- WITHDRAW FROM VESTING --
-    //     From ${payer}
-    //     Amount ${amount}
-    //     Date ${date}
-    //     `);
-
-    //     const address = payer.toLowerCase();
-    //     const user = await User.findOne({ wallet: address });
-    //     if (user) {
-    //         const account = await Account.findOne({ user: user._id });
-    //         if (account) {
-    //             account.bone = account.bone + parseInt(ethers.utils.formatEther(amount));
-    //             await account.save();
-
-    //             var objVesting = {
-    //                 user: user._id,
-    //             };
-    //             await VestingToBone.create(objVesting);
-    //         }
-    //     }
-    // });
-    SmartContractBUSDObj.on("Transfer", async (from, to, value) => {
+    SmartContractDepositObj.on("DepositDone", async (payer, amount, transactionId, date) => {
         console.log(`
-    -- BUSD --
-    From ${from}
-    To ${to}
-    Value ${value}
-    `);
+        -- DEPOSIT --
+        From ${payer}
+        Amount ${amount}
+        Id ${transactionId}
+        Date ${date}
+        `);
+        const deposit = await Deposit.findOne({ transactionId: transactionId });
+        if (deposit) {
+            if (!deposit.paid) {
+                deposit.paid = true;
+                await deposit.save();
+
+                const address = payer.toLowerCase();
+                const user = await User.findOne({ wallet: address });
+                const account = await Account.findOne({ user: user._id });
+                if (account) {
+                    account.bone = account.bone + parseInt(ethers.utils.formatEther(amount));
+                    await account.save();
+                }
+            }
+        }
+    });
+
+    SmartContractWithdrawObj.on("WithdrawDone", async (payer, amount, transactionId, date) => {
+        console.log(`
+        -- WITHDRAW --
+        From ${payer}
+        Amount ${amount}
+        Id ${transactionId}
+        Date ${date}
+        `);
+        const withdraw = await Withdraw.findOne({ transactionId: transactionId });
+        if (withdraw) {
+            if (!withdraw.paid) {
+                withdraw.paid = true;
+                await withdraw.save();
+
+                const address = payer.toLowerCase();
+                const user = await User.findOne({ wallet: address });
+                const account = await Account.findOne({ user: user._id });
+                if (account) {
+                    account.bone = account.bone - parseInt(ethers.utils.formatEther(amount));
+                    await account.save();
+                }
+            }
+        }
+    });
+
+    SmartContractBuyDogObj.on("BuyDogDone", async (payer, amount, transactionId, date) => {
+        console.log(`
+        -- BUY DOG --
+        From ${payer}
+        Amount ${amount}
+        Id ${transactionId}
+        Date ${date}
+        `);
+        const buyDog = await BuyDog.findOne({ transactionId: transactionId });
+        if (buyDog) {
+            if (!buyDog.paid) {
+                buyDog.paid = true;
+                await buyDog.save();
+
+                const address = payer.toLowerCase();
+                const user = await User.findOne({ wallet: address });
+                const account = await Account.findOne({ user: user._id });
+                if (account && buyDog.stake === false) {
+                    account.bone = account.bone - amount * gameSettings.dogPrice;
+                    await account.save();
+                }
+
+                if (buyDog.stake === true) {
+                    const stake = await Stake.findOne({ user: user._id, _id: buyDog.stakeId });
+                    if (stake) {
+                        stake.lastMint = new Date(stake.lastMint.getTime() + 48 * amount * gameSettings.timeMult);
+                        await stake.save();
+                    }
+                }
+            }
+        }
+    });
+
+    SmartContractBuyHouseObj.on("BuyHouseDone", async (payer, amount, transactionId, date) => {
+        console.log(`
+        -- BUY HOUSE --
+        From ${payer}
+        Amount ${amount}
+        Id ${transactionId}
+        Date ${date}
+        `);
+        const buyHouse = await BuyHouse.findOne({ transactionId: transactionId });
+        if (buyHouse) {
+            if (!buyHouse.paid) {
+                buyHouse.paid = true;
+                await buyHouse.save();
+
+                const address = payer.toLowerCase();
+                const user = await User.findOne({ wallet: address });
+                const account = await Account.findOne({ user: user._id });
+                if (account) {
+                    account.bone = account.bone - amount * gameSettings.housePrice;
+                    await account.save();
+                }
+            }
+        }
+    });
+
+    SmartContractWithdrawVestingObj.on("WithdrawToBoneDone", async (payer, amount, date) => {
+        console.log(`
+        -- WITHDRAW FROM VESTING --
+        From ${payer}
+        Amount ${amount}
+        Date ${date}
+        `);
+
+        const address = payer.toLowerCase();
+        const user = await User.findOne({ wallet: address });
+        if (user) {
+            const account = await Account.findOne({ user: user._id });
+            if (account) {
+                account.bone = account.bone + parseInt(ethers.utils.formatEther(amount));
+                await account.save();
+
+                var objVesting = {
+                    user: user._id,
+                };
+                await VestingToBone.create(objVesting);
+            }
+        }
     });
 };
 
-// listenToEvents();
+listenToEvents();

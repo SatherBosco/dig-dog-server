@@ -17,7 +17,6 @@ router.use(authMiddleware);
 
 router.post("/withdraw", async (req, res) => {
     const withdrawReq = req.body;
-    return res.status(400).send({ msg: "Em manutenção." });
     try {
         let withdraw;
 
@@ -88,7 +87,6 @@ router.post("/withdraw", async (req, res) => {
 });
 
 router.post("/deposit", async (req, res) => {
-    return res.status(400).send({ msg: "Em manutenção." });
     try {
         const { transactionId } = await Deposit.findOne({}).sort({ transactionId: -1 }).limit(1);
 

@@ -70,7 +70,6 @@ router.get("/", async (req, res) => {
 
 router.post("/buy", async (req, res) => {
     const buyHouseReq = req.body;
-    return res.status(400).send({ msg: "Em manutenção." });
     try {
         let buyHouse;
 
