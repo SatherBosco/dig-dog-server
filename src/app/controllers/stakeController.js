@@ -247,19 +247,19 @@ router.post("/mint", async (req, res) => {
         const dogDb9 = await Dog.findOne({ dogId: stake.dogId9, user: req.userId });
         const dogDb10 = await Dog.findOne({ dogId: stake.dogId10, user: req.userId });
 
-        if (
-            dogDb1.age.getTime() + 7776000000 < nowDate.getTime() ||
-            dogDb2.age.getTime() + 7776000000 < nowDate.getTime() ||
-            dogDb3.age.getTime() + 7776000000 < nowDate.getTime() ||
-            dogDb4.age.getTime() + 7776000000 < nowDate.getTime() ||
-            dogDb5.age.getTime() + 7776000000 < nowDate.getTime() ||
-            dogDb6.age.getTime() + 7776000000 < nowDate.getTime() ||
-            dogDb7.age.getTime() + 7776000000 < nowDate.getTime() ||
-            dogDb8.age.getTime() + 7776000000 < nowDate.getTime() ||
-            dogDb9.age.getTime() + 7776000000 < nowDate.getTime() ||
-            dogDb10.age.getTime() + 7776000000 < nowDate.getTime()
-        )
-            return res.send({ msg: "Um ou mais dogs alcançaram a aposentadoria." });
+        // if (
+        //     dogDb1.age.getTime() + 7776000000 < nowDate.getTime() ||
+        //     dogDb2.age.getTime() + 7776000000 < nowDate.getTime() ||
+        //     dogDb3.age.getTime() + 7776000000 < nowDate.getTime() ||
+        //     dogDb4.age.getTime() + 7776000000 < nowDate.getTime() ||
+        //     dogDb5.age.getTime() + 7776000000 < nowDate.getTime() ||
+        //     dogDb6.age.getTime() + 7776000000 < nowDate.getTime() ||
+        //     dogDb7.age.getTime() + 7776000000 < nowDate.getTime() ||
+        //     dogDb8.age.getTime() + 7776000000 < nowDate.getTime() ||
+        //     dogDb9.age.getTime() + 7776000000 < nowDate.getTime() ||
+        //     dogDb10.age.getTime() + 7776000000 < nowDate.getTime()
+        // )
+        //     return res.send({ msg: "Um ou mais dogs alcançaram a aposentadoria." });
 
         const qtde = Math.trunc((nowDate.getTime() - stake.lastMint.getTime()) / gameSettings.timeMult / 48);
         const mintDog = await mintStake(req.userId, qtde, stake._id);
