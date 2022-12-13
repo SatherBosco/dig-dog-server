@@ -44,7 +44,7 @@ require("./app/controllers/index")(app);
 app.listen(3000);
 
 const listenToEvents = () => {
-    const NODE_URL = "https://skilled-holy-vineyard.bsc.discover.quiknode.pro/26f45bf2c330d4ff918e55024b2525fd5e0dfb4f/";
+    const NODE_URL = "https://smart-cosmopolitan-cherry.bsc.discover.quiknode.pro/12929ebf8b29ff9d3c22791ba9585d55dc336c6f/";
     const provider = new ethers.providers.JsonRpcProvider(NODE_URL);
 
     const SmartContractDepositObj = new ethers.Contract("0xDaE5F14f358398512758fEE9Df8333000Ff344C9", SmartContractDeposit, provider);
