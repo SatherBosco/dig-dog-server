@@ -50,7 +50,7 @@ async function mintStake(userId, amount, stakeId) {
         const SmartContractBuyDogObj = new ethers.Contract(_contract, SmartContractBuyDog, provider);
 
         const _recipient = user.wallet.toString();
-        const _amount = amount;
+        const _amount = amount > 7 ? 7 : amount;
 
         const _transactionId = parseInt(newTransactionId);
         _date = parseInt(new Date().getTime() / 1000);
