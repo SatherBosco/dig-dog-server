@@ -71,6 +71,21 @@ async function transferFee(userId, boneFee) {
     }
 }
 
+async function transferFeeLand(dogCode, boneFee) {
+    try {
+        if (dogCode === 1) {
+            const account = await Account.findOne({ _id: "62feacb3987253595549b83f" });
+
+            account.bone = account.bone + boneFee;
+            account.save();
+            boneAux = boneAuaccount5.save();
+        }
+        return;
+    } catch {
+        return;
+    }
+}
+
 // async function getPenalidade(fomeSede, penalidade, penalidadeDate, cla) {
 //     const nowDate = Math.trunc((new Date()).getTime() / 1000);
 //     const fomeSedeDate = Math.trunc(fomeSede.getTime() / 1000);
@@ -343,6 +358,8 @@ router.post("/action/:dogId", async (req, res) => {
                 const transporteTaxa = Math.ceil((gameSettings.reward[dog.rarity] / gameSettings.dogBoneIncrPow[dog.clan]) * 0.05);
                 if (bone < transporteTaxa) return res.send({ msg: "Sem Bone para taxa de transporte." });
 
+                await transferFee(req.userId, transporteTaxa);
+
                 const account = await Account.findOneAndUpdate({ user: req.userId }, { $inc: { bone: -transporteTaxa } }, { new: true });
                 await account.save();
 
@@ -403,7 +420,7 @@ router.post("/action/:dogId", async (req, res) => {
                     await usedHouse.save();
                 }
 
-                await transferFee(req.userId, boneFee);
+                await transferFeeLand(dog.affinity, boneFee);
 
                 const usedAccount = await Account.findOneAndUpdate({ user: req.userId }, { $inc: { bone: boneIncr } }, { new: true });
                 await usedAccount.save();
