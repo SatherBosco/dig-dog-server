@@ -42,6 +42,9 @@ app.get("/", (req, res) => {
 
 app.get("/dog/age", async (req, res) => {
     const { dogId } = req.body;
+
+    if (!dogId) return res.status(400).send({ msg: "Dog ID inválido." });
+
     var dog = Dog.findOne({ dogId: dogId });
 
     return res.send({ msg: "OK", dog });
