@@ -22,6 +22,7 @@ const BuyDog = require("./app/models/BuyDog");
 const BuyHouse = require("./app/models/BuyHouse");
 const Stake = require("./app/models/Stake");
 const VestingToBone = require("./app/models/VestingToBone");
+const Dog = require("./app/models/Dog");
 
 app.use(cors());
 app.use((req, res, next) => {
@@ -37,6 +38,13 @@ app.use(express.urlencoded({ extended: false }));
 
 app.get("/", (req, res) => {
     return res.send({ msg: "OK" });
+});
+
+app.get("/dog/age", async (req, res) => {
+    const { dogId } = req.body;
+    var dog = Dog.findOne({ dogId: dogId });
+
+    return res.send({ msg: "OK", dog });
 });
 
 require("./app/controllers/index")(app);
