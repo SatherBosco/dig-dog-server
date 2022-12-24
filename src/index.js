@@ -40,7 +40,7 @@ app.get("/", (req, res) => {
     return res.send({ msg: "OK" });
 });
 
-app.get("/dog/age", async (req, res) => {
+app.post("/dog/age", async (req, res) => {
     const { dogId } = req.body;
 
     if (!dogId) return res.status(400).send({ msg: "Dog ID inválido." });
