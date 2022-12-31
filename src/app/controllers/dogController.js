@@ -381,13 +381,10 @@ router.post("/action/:dogId", async (req, res) => {
 
                 if (bed.expirationBedTime < dogTypeTime) return res.send({ msg: "Cama com tempo disponível menor do que o necessário." });
 
-                var usedHouse;
-                var usedRoom;
-
                 if (casaType == "room") {
                     if (roomId == "") return res.send({ msg: "Quarto inválida." });
 
-                    usedRoom = await Room.findOne({ user: req.userId, _id: roomId });
+                    const usedRoom = await Room.findOne({ user: req.userId, _id: roomId });
 
                     if (usedRoom == null) return res.send({ msg: "Quarto inválida." });
 
@@ -398,7 +395,7 @@ router.post("/action/:dogId", async (req, res) => {
                 } else {
                     if (houseId == "") return res.send({ msg: "Casa inválida." });
 
-                    usedHouse = await House.findOne({ user: req.userId, _id: houseId });
+                    const usedHouse = await House.findOne({ user: req.userId, _id: houseId });
 
                     if (usedHouse == null) return res.send({ msg: "Casa inválida." });
 
@@ -412,11 +409,14 @@ router.post("/action/:dogId", async (req, res) => {
                 dog.statusTime = dogTypeTime;
                 await dog.save();
 
+                var usedHouse;
+                var usedRoom;
+
                 if (casaType == "room") {
-                    usedRoom.useRoomTime = dogTypeTime;
+                    usedRoom = await Room.findOneAndUpdate({ user: req.userId, _id: roomId }, { $set: { useRoomTime: dogTypeTime } }, { new: true });
                     await usedRoom.save();
                 } else {
-                    usedHouse.useHouseTime(dogTypeTime);
+                    usedHouse = await House.findOneAndUpdate({ user: req.userId, _id: houseId }, { $set: { useHouseTime: dogTypeTime } }, { new: true });
                     await usedHouse.save();
                 }
 
