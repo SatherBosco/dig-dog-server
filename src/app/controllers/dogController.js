@@ -405,13 +405,6 @@ router.post("/action/:dogId", async (req, res) => {
                     if (usedHouse.useHousetime > nowDate) return res.send({ msg: "Casa já em uso." });
                 }
 
-                const usedBed = await Bed.findOneAndUpdate({ user: req.userId, _id: bedId }, { $set: { useBedTime: dogTypeTime } }, { new: true });
-                await usedBed.save();
-
-                dog.status = "dormindo";
-                dog.statusTime = dogTypeTime;
-                await dog.save();
-
                 if (casaType == "room") {
                     usedRoom.useRoomTime = dogTypeTime;
                     await usedRoom.save();
@@ -419,6 +412,13 @@ router.post("/action/:dogId", async (req, res) => {
                     usedHouse.useHouseTime = dogTypeTime;
                     await usedHouse.save();
                 }
+
+                const usedBed = await Bed.findOneAndUpdate({ user: req.userId, _id: bedId }, { $set: { useBedTime: dogTypeTime } }, { new: true });
+                await usedBed.save();
+
+                dog.status = "dormindo";
+                dog.statusTime = dogTypeTime;
+                await dog.save();
 
                 await transferFeeLand(dog.affinity, boneFee);
 
