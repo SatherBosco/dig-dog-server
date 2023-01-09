@@ -375,7 +375,7 @@ router.post("/action/:dogId", async (req, res) => {
 
                 const bed = await Bed.findOne({ _id: bedId, user: req.userId });
 
-                if (bed == null) return res.send({ msg: "Cama inválida." });
+                if (!bed) return res.send({ msg: "Cama não encontrada." });
 
                 if (bed.useBedTime > nowDate) return res.send({ msg: "Cama já em uso." });
 
@@ -384,28 +384,28 @@ router.post("/action/:dogId", async (req, res) => {
                 var usedHouse;
                 var usedRoom;
 
-                if (casaType == "room") {
-                    if (roomId == "") return res.send({ msg: "Quarto inválida." });
+                if (casaType === "room") {
+                    if (roomId === "") return res.send({ msg: "Quarto não selecionado." });
 
                     usedRoom = await Room.findOne({ user: req.userId, _id: roomId });
 
-                    if (usedRoom == null) return res.send({ msg: "Quarto inválida." });
+                    if (!usedRoom) return res.send({ msg: "Quarto não encontrado." });
 
                     if (usedRoom.useRoomTime > nowDate) return res.send({ msg: "Quarto já em uso." });
 
                     if (new Date(usedRoom.roomStartTime.getTime() + Math.trunc(usedRoom.timeMult * 24.5 * gameSettings.timeMult)) < dogTypeTime)
                         return res.send({ msg: "Quarto com tempo disponível menor do que o necessário." });
                 } else {
-                    if (houseId == "") return res.send({ msg: "Casa inválida." });
+                    if (houseId === "") return res.send({ msg: "Casa não selecionada." });
 
                     usedHouse = await House.findOne({ user: req.userId, _id: houseId });
 
-                    if (usedHouse == null) return res.send({ msg: "Casa inválida." });
+                    if (!usedHouse) return res.send({ msg: "Casa não encontrada." });
 
                     if (usedHouse.useHousetime > nowDate) return res.send({ msg: "Casa já em uso." });
                 }
 
-                if (casaType == "room") {
+                if (casaType === "room") {
                     usedRoom.useRoomTime = dogTypeTime;
                     await usedRoom.save();
                 } else {
